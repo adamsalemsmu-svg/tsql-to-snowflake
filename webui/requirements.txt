@@ -1,4 +1,4 @@
-fastapi
-uvicorn[standard]
-jinja2
-sqlglot
+fastapi>=0.115
+uvicorn[standard]>=0.30
+jinja2>=3.1
+sqlglot>=23.0
