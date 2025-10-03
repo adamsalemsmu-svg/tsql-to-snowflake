@@ -1,0 +1,194 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Key Bot – T-SQL → Snowflake</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+
+  <style>
+    :root {
+      --bg:#0f1115; --panel:#161a22; --panel-2:#11151c; --text:#e8ecf1;
+      --muted:#a5acc1; --border:#222836; --chip:#1c2230; --accent:#5b9cff;
+    }
+    * { box-sizing: border-box }
+    body {
+      margin:0;
+      font-family: ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial;
+      background:var(--bg); color:var(--text);
+    }
+    .wrap { max-width:1280px; margin:0 auto; padding:16px 20px 32px; }
+    .header { display:flex; gap:8px; align-items:center; color:var(--muted); font-size:14px; margin-bottom:12px; }
+    .crumb + .crumb::before { content:"›"; margin:0 8px; opacity:.5 }
+    .grid { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .panel {
+      background:linear-gradient(180deg,var(--panel) 0%,var(--panel-2) 100%);
+      border:1px solid var(--border); border-radius:14px; overflow:hidden; min-height:480px;
+    }
+    .panel-head { display:flex; align-items:center; justify-content:space-between; padding:10px 12px; border-bottom:1px solid var(--border); background:#121722; }
+    .panel-title { font-size:14px; color:var(--muted); }
+    .toolbar { display:flex; gap:8px }
+    .btn { border:1px solid var(--border); background:var(--chip); color:var(--text); padding:6px 10px; font-size:13px; border-radius:10px; cursor:pointer; transition:.15s; user-select:none; }
+    .btn.pill { border-radius:999px; padding:6px 12px }
+    .btn.primary { background:#172036; border-color:#27304b }
+    .btn:hover { transform: translateY(-1px); border-color:#2b3347 }
+    .tabs { display:flex; gap:8px }
+    .tab { background:#0f1420; color:var(--muted); border:1px solid var(--border); padding:6px 12px; border-radius:999px; cursor:pointer; font-size:13px; }
+    .tab.active { color:var(--text); border-color:#2c3752; background:#162035; }
+    .textarea, .codebox {
+      width:100%; height:calc(100% - 44px); padding:14px; color:var(--text);
+      background:transparent; border:0; outline:0;
+      font-family: ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+      font-size:13px; line-height:1.5;
+    }
+    .codebox { white-space:pre; overflow:auto }
+    .footer { margin-top:14px; display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+    .footer.hidden { display:none }
+    .subpanel { min-height:260px }
+    .titlebar { padding:8px 12px; border-bottom:1px solid var(--border); background:#101623; color:#a5acc1; font-size:13px }
+    .note { font-size:12px; color:#a5acc1; }
+  </style>
+
+  <!-- Prism.js for SQL syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/themes/prism-tomorrow.min.css" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/prism.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/prism/1.29.0/components/prism-sql.min.js"></script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="header">
+      <span class="crumb">Key Bot</span><span class="crumb">T-SQL</span><span class="crumb">Snowflake</span>
+    </div>
+
+    <div class="grid">
+      <!-- LEFT: Input -->
+      <section class="panel">
+        <div class="panel-head">
+          <div class="panel-title">Paste T-SQL</div>
+          <div class="toolbar">
+            <button id="convertBtn" class="btn primary">Convert to Snowflake</button>
+          </div>
+        </div>
+        <textarea id="tsqlInput" class="textarea" spellcheck="false" placeholder="-- Paste T-SQL here..."></textarea>
+      </section>
+
+      <!-- RIGHT: Output -->
+      <section class="panel">
+        <div class="panel-head">
+          <div class="tabs">
+            <button id="tabConverted" class="tab active">Converted</button>
+            <button id="tabDiff" class="tab">Diff</button>
+          </div>
+          <div class="toolbar">
+            <button id="copyBtn" class="btn pill">Copy</button>
+            <button id="downloadBtn" class="btn pill">Download .sql</button>
+            <button id="reloadBtn" class="btn pill">Reload</button>
+          </div>
+        </div>
+        <!-- Prism needs <code class="language-sql"> inside the <pre> -->
+        <pre class="codebox"><code class="language-sql" id="convertedOutput">-- Converted Snowflake SQL will appear here...</code></pre>
+      </section>
+    </div>
+
+    <!-- BOTTOM: Original vs Diff (hidden by default; toggled by Diff) -->
+    <div id="diffPanel" class="footer hidden" aria-hidden="true">
+      <section class="panel subpanel">
+        <div class="titlebar">Original T-SQL</div>
+        <pre class="codebox"><code class="language-sql" id="originalBox"></code></pre>
+      </section>
+      <section class="panel subpanel">
+        <div class="titlebar">Snowflake SQL</div>
+        <pre class="codebox"><code class="language-sql" id="diffBox"></code></pre>
+      </section>
+    </div>
+
+    <div class="note">Tip: Click “Diff” to show/hide the bottom panel.</div>
+  </div>
+
+  <script>
+    // --- Elements
+    const tsqlInput = document.getElementById('tsqlInput');
+    const convertBtn = document.getElementById('convertBtn');
+    const out = document.getElementById('convertedOutput'); // <code> element
+    const copyBtn = document.getElementById('copyBtn');
+    const downloadBtn = document.getElementById('downloadBtn');
+    const reloadBtn = document.getElementById('reloadBtn');
+    const tabConverted = document.getElementById('tabConverted');
+    const tabDiff = document.getElementById('tabDiff');
+    const diffPanel = document.getElementById('diffPanel');
+    const originalBox = document.getElementById('originalBox'); // <code> element
+    const diffBox = document.getElementById('diffBox');         // <code> element
+
+    function setDiffVisible(visible) {
+      diffPanel.classList.toggle('hidden', !visible);
+      diffPanel.setAttribute('aria-hidden', String(!visible));
+      tabDiff.classList.toggle('active', visible);
+      tabConverted.classList.toggle('active', !visible);
+      if (visible) {
+        // populate the bottom panes
+        originalBox.textContent = tsqlInput.value;
+        diffBox.textContent = out.textContent;
+        Prism.highlightAll();
+        diffPanel.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    }
+
+    async function handleConvert() {
+      const tsql = tsqlInput.value || '';
+      if (!tsql.trim()) {
+        out.textContent = '-- Error: No input provided';
+        Prism.highlightAll();
+        return;
+      }
+      out.textContent = 'Converting...';
+      Prism.highlightAll();
+
+      try {
+        // Backend returns { snowflake_sql: "..." } (your /api/convert)
+        const res = await fetch('/api/convert', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ tsql })
+        });
+        const data = await res.json();
+        const snow = (data && data.snowflake_sql) || '-- (No output)';
+        out.textContent = snow;
+
+        if (!diffPanel.classList.contains('hidden')) {
+          diffBox.textContent = snow;
+        }
+        Prism.highlightAll(); // apply SQL syntax highlighting to all code blocks
+      } catch (err) {
+        out.textContent = `-- Error: ${err.message || 'Conversion failed'}`;
+        Prism.highlightAll();
+      }
+    }
+
+    convertBtn.addEventListener('click', handleConvert);
+    tabConverted.addEventListener('click', () => setDiffVisible(false));
+    tabDiff.addEventListener('click', () => setDiffVisible(diffPanel.classList.contains('hidden')));
+
+    copyBtn.addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(out.textContent || '');
+        copyBtn.textContent = 'Copied';
+        setTimeout(() => (copyBtn.textContent = 'Copy'), 900);
+      } catch {}
+    });
+
+    downloadBtn.addEventListener('click', () => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob([out.textContent || ''], { type: 'text/plain' }));
+      a.download = `snowflake_${new Date().toISOString().slice(0,19).replace(/[:T]/g,'-')}.sql`;
+      document.body.appendChild(a); a.click(); URL.revokeObjectURL(a.href); a.remove();
+    });
+    reloadBtn.addEventListener('click', () => {
+  location.reload();
+ });
+
+
+
+    // Start hidden
+    setDiffVisible(false);
+  </script>
+</body>
+</html>

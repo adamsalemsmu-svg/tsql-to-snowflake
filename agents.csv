@@ -1,0 +1,6 @@
+agent_id,full_name,phone,email,office_id,hire_date
+1,Agent 1,555-0101,agent1@realestate.com,1,2025-02-25
+2,Agent 2,555-0102,agent2@realestate.com,2,2024-12-02
+3,Agent 3,555-0103,agent3@realestate.com,1,2024-04-24
+4,Agent 4,555-0104,agent4@realestate.com,3,2025-08-09
+5,Agent 5,555-0105,agent5@realestate.com,3,2024-08-25

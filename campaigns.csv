@@ -1,0 +1,6 @@
+campaign_id,campaign_name,start_date,end_date,budget,channel
+1,Campaign 1,2024-07-22,2024-08-06,30586,Email
+2,Campaign 2,2025-06-02,2025-08-14,23694,Billboards
+3,Campaign 3,2025-03-26,2025-06-20,48376,Billboards
+4,Campaign 4,2024-01-30,2024-03-09,24445,Google Ads
+5,Campaign 5,2023-11-16,2024-02-13,40533,Facebook

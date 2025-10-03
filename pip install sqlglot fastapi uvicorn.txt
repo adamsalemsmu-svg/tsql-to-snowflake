@@ -1,0 +1,1 @@
+echo "SELECT TOP 5 [Id], ISNULL(Name,'X') FROM [dbo].[Users];" | python tsql_to_snowflake.py

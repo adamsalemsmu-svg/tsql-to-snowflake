@@ -1,0 +1,16 @@
+client_id,full_name,email,phone,client_type,join_date
+1,Client 1,client1@mail.com,555-0201,Buyer,2025-09-22
+2,Client 2,client2@mail.com,555-0202,Buyer,2025-04-07
+3,Client 3,client3@mail.com,555-0203,Seller,2024-08-06
+4,Client 4,client4@mail.com,555-0204,Seller,2024-09-06
+5,Client 5,client5@mail.com,555-0205,Seller,2024-01-03
+6,Client 6,client6@mail.com,555-0206,Buyer,2024-03-24
+7,Client 7,client7@mail.com,555-0207,Buyer,2024-06-20
+8,Client 8,client8@mail.com,555-0208,Buyer,2024-12-31
+9,Client 9,client9@mail.com,555-0209,Buyer,2025-01-01
+10,Client 10,client10@mail.com,555-02010,Buyer,2023-10-07
+11,Client 11,client11@mail.com,555-02011,Buyer,2025-04-03
+12,Client 12,client12@mail.com,555-02012,Buyer,2024-03-27
+13,Client 13,client13@mail.com,555-02013,Buyer,2025-09-04
+14,Client 14,client14@mail.com,555-02014,Buyer,2025-07-30
+15,Client 15,client15@mail.com,555-02015,Seller,2023-11-26

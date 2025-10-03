@@ -1,0 +1,158 @@
+:root {
+  --bg: #0e1117;
+  --panel: #161b22;
+  --border: #30363d;
+  --text: #e6edf3;
+  --muted: #8b949e;
+  --accent: #1f6feb;
+  --error: #ff6b6b;
+  --add: rgba(0, 200, 83, .18);
+  --del: rgba(244, 67, 54, .18);
+}
+
+body {
+  margin: 0;
+  font-family: "JetBrains Mono", Consolas, monospace;
+  background: var(--bg);
+  color: var(--text);
+}
+
+nav {
+  background: var(--panel);
+  padding: 12px 20px;
+  border-bottom: 1px solid var(--border);
+}
+nav h1 {
+  font-size: 16px;
+  margin: 0;
+  color: var(--accent);
+}
+
+main.grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  padding: 16px;
+}
+
+section {
+  background: var(--panel);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+}
+
+textarea {
+  width: 100%;
+  min-height: 300px;
+  font-size: 14px;
+  line-height: 1.4;
+  background: #0d1117;
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 8px;
+  resize: vertical;
+}
+
+pre.codeblock {
+  background: #0d1117;
+  color: var(--text);
+  font-size: 14px;
+  line-height: 1.5;
+  padding: 10px;
+  border-radius: 6px;
+  overflow-x: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+  min-height: 320px;
+}
+
+/* Tabs */
+.tabs {
+  display:flex; align-items:center; gap:8px; margin-bottom:8px;
+}
+.tab {
+  background: transparent;
+  border: 1px solid var(--border);
+  color: var(--text);
+  padding: 6px 10px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tab.active { background: var(--accent); border-color: var(--accent); color:white; }
+.tab + .spacer { flex:1; }
+
+/* Buttons */
+button {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 6px 12px;
+  cursor: pointer;
+  font-weight: 600;
+}
+button.ghost {
+  background: transparent;
+  border: 1px solid var(--border);
+}
+button.small { font-size: 12px; padding: 4px 8px; }
+
+/* Diff layout */
+.diff-host { width: 100%; overflow:auto; }
+.diff-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.diff-col-head {
+  font-size: 12px; color: var(--muted);
+  padding: 2px 4px; border-bottom: 1px solid var(--border);
+  margin-bottom: 4px;
+}
+.diff-col {
+  background: #0d1117;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  font-family: inherit;
+  font-size: 13px;
+  padding: 6px;
+  min-height: 300px;
+}
+.diff-line { display:flex; gap:8px; padding: 1px 4px; border-radius:6px; }
+.diff-line .ln { width: 3ch; color: var(--muted); text-align: right; }
+.diff-line code { white-space: pre-wrap; }
+
+/* Highlight colors */
+.diff-line.add { background: var(--add); }
+.diff-line.del { background: var(--del); }
+
+/* --- Intra-line highlights --- */
+.hl-ins {
+  background: rgba(56, 139, 253, 0.25);   /* soft blue for inserts */
+  border-bottom: 1px solid #1f6feb;
+}
+.hl-del {
+  background: rgba(248, 81, 73, 0.25);    /* soft red for deletes */
+  border-bottom: 1px solid #f85149;
+}
+
+/* Optional: tiny symbols column in diff ( + / - /   ) */
+.diff-line .sym {
+  width: 1.25ch;
+  color: var(--muted);
+  text-align: center;
+}
+
+/* Keep the existing add/del line tints from before */
+.diff-line.add { background: var(--add); }
+.diff-line.del { background: var(--del); }
+
+.hl-ins { background: rgba(56,139,253,.25); border-bottom: 1px solid #1f6feb; }
+.hl-del { background: rgba(248,81,73,.25);  border-bottom: 1px solid #f85149; }
+.diff-line .sym { width: 1.25ch; color: var(--muted); text-align: center; }
+

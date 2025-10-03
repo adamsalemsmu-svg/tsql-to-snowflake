@@ -1,0 +1,6 @@
+python-dotenv
+snowflake-connector-python
+sqlglot
+click
+fastapi
+uvicorn
